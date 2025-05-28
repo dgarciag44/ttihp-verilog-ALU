@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
-  title:        "FSM Control de Temperatura"      # Project title
+  title:        "ALU 8 bits con nCLA y control serial"      # Project title
   author:       "dgarciag44"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "FSM Mealy + Moore para controlar la velocidad de ventilador, segun temperatura y modo manual"      # One line description of what your project does
+  description:  "ALU de 8 bits con entrada serial, operaciones b[asicas (suma, resta, AND, OR, Shift Left y Shift Right) y visualizacion de flags. Implementa CLA jerárquico"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
 
@@ -11,38 +11,39 @@ project:
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "tt_um_fsm_dgarciag44"
+  top_module:  "tt_um_alu_dgarciag44"
 
   # List your project's source files here.
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "tt_um_fsm_dgarciag44.v"
-    - "mealy.v"
-    - "moore.v"
+    - "tt_um_alu_dgarciag44.v"
+    - "alu_core.v"
+    - "cla8.v"
+    - "cla4.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: "BT_manual"
-  ui[1]: "reset"
-  ui[2]: "temp[0]"
-  ui[3]: "temp[1]"
-  ui[4]: "select[0]"
-  ui[5]: "select[1]"
-  ui[6]: "clk"
-  ui[7]: ""
+  ui[0]: "bit_in"
+  ui[1]: "sel_AB"
+  ui[2]: "confirm"
+  ui[3]: "op[0]"
+  ui[4]: "op[1]"
+  ui[5]: "op[2]"
+  ui[6]: "show_flags"
+  ui[7]: "shift_ctrl"
 
   # Outputs
-  uo[0]: "K[0]"
-  uo[1]: "K[1]"
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "result[0]"
+  uo[1]: "result[1]"
+  uo[2]: "result[2]"
+  uo[3]: "result[3]"
+  uo[4]: "result[4]"
+  uo[5]: "result[5]"
+  uo[6]: "result[6]"
+  uo[7]: "result[7]"
 
   # Bidirectional pins
   uio[0]: ""
