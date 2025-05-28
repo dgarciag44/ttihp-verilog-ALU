@@ -1,71 +1,57 @@
+`timescale 1ns / 1ps
+
 module tt_um_alu_dgarciag44 (
-    input  [7:0]  ui_in,     // Dedicated inputs
-    output [7:0]  uo_out,    // Dedicated outputs
-    input  [7:0]  uio_in,    // Bidirectional (unused)
-    output [7:0]  uio_out,   // Bidirectional (unused)
-    output [7:0]  uio_oe,    // Bidirectional enable (unused)
-    input         ena,       // Enable (unused)
-    input         clk,       // Clock
-    input         rst_n      // Active-low reset
+    input  [7:0]  ui_in,
+    output [7:0]  uo_out,
+    input  [7:0]  uio_in,
+    output [7:0]  uio_out,
+    output [7:0]  uio_oe,
+    input         ena,
+    input         clk,
+    input         rst_n
 );
 
-    // Convertimos reset a activo alto
     wire reset = ~rst_n;
 
-    // Entradas organizadas
-    wire data_in    = ui_in[0];
-    wire sel_ab     = ui_in[1];    // 0 → A, 1 → B
-    wire load_bit   = ui_in[2];    // Confirmar/cargar bit
-    wire [2:0] alu_op = ui_in[5:3]; // Operación ALU
-    wire shift_mode = ui_in[6];
+    wire data_in   = ui_in[0];
+    wire sel_ab    = ui_in[1];
+    wire save_bit  = ui_in[2];
+    wire [2:0] alu_op = ui_in[5:3];
     wire show_flags = ui_in[7];
+    wire show_shift = ui_in[6];
 
-    // Registros A y B de 8 bits
-    reg [7:0] A = 8'b0;
-    reg [7:0] B = 8'b0;
+    reg [7:0] A = 8'd0;
+    reg [7:0] B = 8'd0;
 
-    // Flags
-    reg Zero, Negative, Carry, Overflow;
-
-    // Resultado
-    reg [7:0] Result;
-
-    // Cargar bits en A o B
+    // Carga de datos bit a bit
     always @(posedge clk or posedge reset) begin
         if (reset) begin
-            A <= 8'b0;
-            B <= 8'b0;
-        end else if (load_bit) begin
+            A <= 8'd0;
+            B <= 8'd0;
+        end else if (save_bit) begin
             if (sel_ab == 1'b0)
-                A <= {A[6:0], data_in};  // Shift-in en A
+                A <= {A[6:0], data_in};  // shift-in a A
             else
-                B <= {B[6:0], data_in};  // Shift-in en B
+                B <= {B[6:0], data_in};  // shift-in a B
         end
     end
 
-    // ALU principal
-    always @(*) begin
-        case (alu_op)
-            3'b000: {Carry, Result} = A + B;                   // Suma
-            3'b001: {Carry, Result} = A - B;                   // Resta
-            3'b010: Result = A & B;                           // AND
-            3'b011: Result = A | B;                           // OR
-            3'b100: Result = shift_mode ? (A >> 1) : (A << 1); // Shift
-            3'b101: Result = shift_mode ? (B >> 1) : (B << 1); // Shift B
-            default: Result = 8'b0;
-        endcase
+    wire [7:0] alu_result;
+    wire [3:0] flags;
 
-        // Flags
-        Zero     = (Result == 8'b0);
-        Negative = Result[7];
-        Overflow = (alu_op == 3'b000 || alu_op == 3'b001) ? 
-                   ((A[7] == B[7]) && (Result[7] != A[7])) : 1'b0;
-    end
+    alu_core alu_inst (
+        .A(A),
+        .B(B),
+        .op(alu_op),
+        .shift_amount(ui_in[7:6]),
+        .result(alu_result),
+        .flags(flags)
+    );
 
-    // Salida final
-    assign uo_out = show_flags ? {4'b0, Overflow, Carry, Negative, Zero} : Result;
+    assign uo_out = show_flags ? {4'b0, flags} :
+                    show_shift ? (alu_op[0] ? (A >> ui_in[7:6]) : (A << ui_in[7:6])) :
+                    alu_result;
 
-    // Pines bidireccionales no usados
     assign uio_out = 8'b0;
     assign uio_oe  = 8'b0;
 
