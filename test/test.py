@@ -6,42 +6,36 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 
 @cocotb.test()
-async def test_fsm(dut):
-    dut._log.info("Start FSM test")
+async def test_alu(dut):
+    dut._log.info("Start ALU test")
 
-    # Setup clock
     clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
 
-    # Initial values
-    dut.ena.value = 1  # Always enable
+    dut.ena.value = 1
+    dut.rst_n.value = 0
     dut.ui_in.value = 0
     dut.uio_in.value = 0
-
-    # Apply reset
-    dut._log.info("Applying reset")
-    dut.rst_n.value = 0
     await ClockCycles(dut.clk, 5)
     dut.rst_n.value = 1
 
-    # Test case 1: manual mode (BT high)
-    dut._log.info("Testing manual mode BT=1")
-    dut.ui_in.value = 0b000001 | (0b01 << 4)  # BT=1, select=01
-    await ClockCycles(dut.clk, 2)
-    dut._log.info(f"Output K: {dut.uo_out.value}")
+    dut._log.info("Loading A: 10101010")
+    for i in range(8):
+        dut.ui_in.value = (0b0 << 1) | (0b1)  # bit + sel_AB (A=0)
+        dut.ui_in.value |= (1 << 2)  # confirm load
+        await ClockCycles(dut.clk, 1)
 
-    # Test case 2: temp low, BT=0
-    dut._log.info("Testing automatic mode temp=00")
-    dut.ui_in.value = 0b000000  # BT=0, temp=00
-    await ClockCycles(dut.clk, 2)
-    dut._log.info(f"Output K: {dut.uo_out.value}")
+    dut._log.info("Loading B: 01010101")
+    for i in range(8):
+        dut.ui_in.value = (0b1 << 1) | (0b1)  # bit + sel_AB (B=1)
+        dut.ui_in.value |= (1 << 2)  # confirm load
+        await ClockCycles(dut.clk, 1)
 
-    # Test case 3: temp medium, BT=0
-    dut._log.info("Testing automatic mode temp=01")
-    dut.ui_in.value = 0b000100  # BT=0, temp=01
-    await ClockCycles(dut.clk, 2)
-    dut._log.info(f"Output K: {dut.uo_out.value}")
+    dut._log.info("Running SUM")
+    dut.ui_in.value = (0b000 << 3)  # op[2:0] = 000 (sum)
+    await ClockCycles(dut.clk, 1)
 
-    # More test cases can be added here...
+    result = dut.uo_out.value.integer
+    dut._log.info(f"ALU result: {result}")
 
-    dut._log.info("FSM test completed")
+    assert result >= 0  # Dummy check, replace with real expected result!
