@@ -1,30 +1,21 @@
-`timescale 1ns / 1ps
-
 module cla8 (
-    input  [7:0] A,
-    input  [7:0] B,
-    input        Cin,
-    output [7:0] S,
-    output       Cout
+    input [7:0] A, B,
+    input Cin,
+    output [7:0] Sum,
+    output Cout
 );
+    wire P0, G0, P1, G1, C4;
 
-    wire [7:0] P, G;
-    wire [8:0] C;
+    cla4 cla_low (
+        .A(A[3:0]), .B(B[3:0]), .Cin(Cin),
+        .Sum(Sum[3:0]), .Cout(), .P(P0), .G(G0)
+    );
 
-    assign P = A ^ B;      // Propagate
-    assign G = A & B;      // Generate
+    cla4 cla_high (
+        .A(A[7:4]), .B(B[7:4]), .Cin(C4),
+        .Sum(Sum[7:4]), .Cout(), .P(P1), .G(G1)
+    );
 
-    assign C[0] = Cin;
-    assign C[1] = G[0] | (P[0] & C[0]);
-    assign C[2] = G[1] | (P[1] & C[1]);
-    assign C[3] = G[2] | (P[2] & C[2]);
-    assign C[4] = G[3] | (P[3] & C[3]);
-    assign C[5] = G[4] | (P[4] & C[4]);
-    assign C[6] = G[5] | (P[5] & C[5]);
-    assign C[7] = G[6] | (P[6] & C[6]);
-    assign C[8] = G[7] | (P[7] & C[7]);
-
-    assign S = P ^ C[7:0]; // Final sum
-    assign Cout = C[8];    // Final carry out
-
+    assign C4 = G0 | (P0 & Cin);
+    assign Cout = G1 | (P1 & C4);
 endmodule
