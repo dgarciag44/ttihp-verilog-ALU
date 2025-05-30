@@ -28,22 +28,22 @@ pinout:
   # Inputs
   ui[0]: "bit_in"
   ui[1]: "sel_AB"
-  ui[2]: "confirm"
+  ui[2]: "confirm_load"
   ui[3]: "op[0]"
   ui[4]: "op[1]"
   ui[5]: "op[2]"
-  ui[6]: "show_flags"
-  ui[7]: "shift_ctrl"
+  ui[6]: "shift_mode"
+  ui[7]: "show_flags"
 
   # Outputs
-  uo[0]: "result[0]"
-  uo[1]: "result[1]"
-  uo[2]: "result[2]"
-  uo[3]: "result[3]"
-  uo[4]: "result[4]"
-  uo[5]: "result[5]"
-  uo[6]: "result[6]"
-  uo[7]: "result[7]"
+  uo[0]: "out[0]"
+  uo[1]: "out[1]"
+  uo[2]: "out[2]"
+  uo[3]: "out[3]"
+  uo[4]: "out[4]"
+  uo[5]: "out[5]"
+  uo[6]: "out[6]"
+  uo[7]: "out[7]"
 
   # Bidirectional pins
   uio[0]: ""
