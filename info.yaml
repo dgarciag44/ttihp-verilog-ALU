@@ -1,6 +1,6 @@
 # Tiny Tapeout project information
 project:
-  title:        "ALU 8 bits con nCLA y control serial"      # Project title
+  title:        "ALU 8 bits con CLA y control serial"      # Project title
   author:       "dgarciag44"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "ALU de 8 bits con entrada serial, operaciones b[asicas (suma, resta, AND, OR, Shift Left y Shift Right) y visualizacion de flags. Implementa CLA jerárquico"      # One line description of what your project does
